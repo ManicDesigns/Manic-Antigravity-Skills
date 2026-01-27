@@ -12,33 +12,74 @@ DELAY = 1.0  # Seconds between requests
 
 # Targeted URLs from User Request
 TARGET_URLS = [
+    # Getting Started
     "https://developer.ebay.com/develop/guides-v2/get-started-with-ebay-apis/get-started-with-ebay-apis#understand-the-ebay-apis",
+    
+    # Sell APIs - Static Guides
     "https://developer.ebay.com/api-docs/sell/static/metadata/getting-metadata.html",
     "https://developer.ebay.com/api-docs/sell/static/seller-accounts/configuring-seller-accounts.html",
     "https://developer.ebay.com/api-docs/sell/static/inventory/managing-inventory-and-offers.html",
+    "https://developer.ebay.com/api-docs/sell/static/inventory/managing-inventory-locations.html",
     "https://developer.ebay.com/api-docs/sell/static/orders/handling-orders.html",
     "https://developer.ebay.com/api-docs/sell/static/marketing/marketing-seller-inventory.html",
     "https://developer.ebay.com/api-docs/sell/static/feed/sell-feed.html",
     "https://developer.ebay.com/api-docs/sell/static/finances/finances-landing.html",
     "https://developer.ebay.com/api-docs/sell/static/selling-ig-landing.html",
+    "https://developer.ebay.com/api-docs/sell/static/feed/fx-feeds.html",
+    "https://developer.ebay.com/api-docs/sell/static/feed/lms-feeds.html",
+    
+    # v2 Guides (New)
+    "https://developer.ebay.com/develop/guides-v2/listing-creation/listing-creation",
+    "https://developer.ebay.com/develop/guides-v2/listing-metadata/listing-metadata-guide",
+    "https://developer.ebay.com/develop/guides-v2/account-management/account-management-guide",
+    "https://developer.ebay.com/develop/guides-v2/order-management/order-management-guide",
+    "https://developer.ebay.com/develop/guides-v2/marketing-and-promotions/marketing-and-promotions-guide",
+    "https://developer.ebay.com/develop/guides-v2/analytics-and-reporting/analytics-and-reporting-guide",
+    "https://developer.ebay.com/develop/guides-v2/communications/sell-communications-guide",
+    "https://developer.ebay.com/develop/guides-v2/other-apis/other-apis-guide",
+    
+    # Buy APIs (New)
+    "https://developer.ebay.com/api-docs/buy/static/buying-ig-landing.html",
+    "https://developer.ebay.com/api-docs/buy/static/buy-overview.html",
+    "https://developer.ebay.com/api-docs/buy/static/buy-requirements.html",
+    "https://developer.ebay.com/api-docs/buy/static/api-browse.html",
+    "https://developer.ebay.com/api-docs/buy/static/api-deal.html",
+    "https://developer.ebay.com/api-docs/buy/static/api-feed.html",
+    "https://developer.ebay.com/api-docs/buy/static/api-marketing.html",
+    "https://developer.ebay.com/api-docs/buy/static/api-offer.html",
+    "https://developer.ebay.com/api-docs/buy/static/api-order.html",
+    
+    # Guides Landing
     "https://developer.ebay.com/develop/guides",
+    
+    # Traditional API Guides
     "https://developer.ebay.com/api-docs/user-guides/static/trading-user-guide-landing.html",
     "https://developer.ebay.com/api-docs/user-guides/static/post-order-user-guide-landing.html",
+    "https://developer.ebay.com/api-docs/user-guides/static/mip-user-guide-landing.html",
+    
+    # Legacy DevZone
     "https://developer.ebay.com/Devzone/return-management/Concepts/ReturnManagementAPIGuide.html",
-    "https://developer.ebay.com/api-docs/static/platform-notifications-landing.html",
     "https://developer.ebay.com/Devzone/product/Concepts/ProductAPIGuide.html",
     "https://developer.ebay.com/Devzone/product/CallRef/fieldindex.html#FieldIndex",
     "https://developer.ebay.com/Devzone/merchandising/docs/Concepts/merchandisingAPIGuide.html",
-    "https://developer.ebay.com/api-docs/user-guides/static/mip-user-guide-landing.html",
-    "https://developer.ebay.com/api-docs/sell/static/feed/fx-feeds.html",
-    "https://developer.ebay.com/api-docs/sell/static/feed/lms-feeds.html",
+    
+    # Platform & Notifications
+    "https://developer.ebay.com/api-docs/static/platform-notifications-landing.html",
+    
+    # Regulatory
+    "https://developer.ebay.com/develop/guides/regulated-third-party-providers-tpp",
+    "https://developer.ebay.com/marketplace-account-deletion",
+    
+    # Grow
     "https://developer.ebay.com/grow/application-growth-check",
     "https://developer.ebay.com/grow/affiliate-program",
     "https://developer.ebay.com/grow/loyalty-program",
+    
+    # API Overviews
     "https://developer.ebay.com/api-docs/sell/recommendation/static/overview.html",
     "https://developer.ebay.com/api-docs/sell/marketing/static/overview.html",
-    "https://developer.ebay.com/develop/selling-apps/analytics-and-reporting",
-    "https://developer.ebay.com/api-docs/sell/analytics/static/overview.html"
+    "https://developer.ebay.com/api-docs/sell/analytics/static/overview.html",
+    "https://developer.ebay.com/develop/selling-apps/analytics-and-reporting"
 ]
 
 visited = set()

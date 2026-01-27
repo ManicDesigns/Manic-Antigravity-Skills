@@ -4,7 +4,7 @@ Source: https://developer.ebay.com/api-docs/sell/marketing/static/overview.html
 
 # Marketing API Overview
 
-v1.22.3
+v1.22.4
 
  
 

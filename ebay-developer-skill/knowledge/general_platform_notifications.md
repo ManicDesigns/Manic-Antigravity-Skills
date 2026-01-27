@@ -143,7 +143,7 @@ Each SOAP message contains an HTTP header that consists of the following pieces 
 * `PROTOCOL` — HTTP/1.1 (The HTTP post is sent via HTTP, not HTTPS, because the data does not need the security of a certificate.)
 * `HOST` — contains the server specified in the URL that you provide
 * `CONTENT_TYPE` — contains "text/xml" and the XML encoding of the message
-* `CONTENT_LENGTH` — contains the length, in the form of a number, of the SOAP message
+* `CONTENT_LENGTH` �� contains the length, in the form of a number, of the SOAP message
 * `SOAPACTION` — contains a URL that ends with the name of the event that the notification is being sent for. The value at the end will be one of the values specified in the [NotificationEventTypeCodeType](/Devzone/XML/docs/Reference/eBay/types/NotificationEventTypeCodeType.html) type in the schema.
 
 The following example shows an HTTP header for an **EndOfAuction** notification. This customer–provided eBay with the URL `my_hostname.com/cgi/my_notifications.asp`.
