@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+.vscode/
+# We want to commit the external Skills code so we can track it, 
+# BUT git inside git is tricky. 
+# We'll rely on the sync script to manage updates, 
+# so we might want to ignore the .git folders inside external/ 
+# but simply removing them or committing the content is easier.
+# For now, standard ignores.

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{BOOK_TITLE}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #0d0d0d;
+            --color-surface: #1a1a1a;
+            --color-surface-elevated: #242424;
+            --color-text: #e8e8e8;
+            --color-text-muted: #888;
+            --color-accent: #c9a227;
+            --color-accent-glow: rgba(201, 162, 39, 0.3);
+            --font-body: 'Crimson Pro', Georgia, serif;
+            --font-ui: 'Inter', -apple-system, sans-serif;
+            --sidebar-width: 280px;
+            --reading-width: 720px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.8;
+            font-size: 18px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* SIDEBAR NAVIGATION */
+        /* ═══════════════════════════════════════════════════════════ */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--color-surface);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            overflow-y: auto;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h1 {
+            font-family: var(--font-ui);
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            margin-top: 4px;
+        }
+
+        .toc {
+            flex: 1;
+            padding: 16px 0;
+        }
+
+        .toc-section {
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .toc-section-title {
+            font-family: var(--font-ui);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-text-muted);
+            padding: 8px 12px;
+        }
+
+        .toc a {
+            display: block;
+            padding: 10px 12px;
+            color: var(--color-text);
+            text-decoration: none;
+            font-family: var(--font-ui);
+            font-size: 14px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .toc a:hover {
+            background: var(--color-surface-elevated);
+            color: var(--color-accent);
+        }
+
+        .toc a.active {
+            background: var(--color-accent-glow);
+            color: var(--color-accent);
+        }
+
+        .toc a .chapter-num {
+            display: inline-block;
+            width: 28px;
+            color: var(--color-text-muted);
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* MAIN CONTENT */
+        /* ═══════════════════════════════════════════════════════════ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+        }
+
+        .chapter {
+            max-width: var(--reading-width);
+            margin: 0 auto;
+            padding: 80px 40px;
+        }
+
+        .chapter-header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .chapter-number {
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--color-accent);
+            margin-bottom: 16px;
+        }
+
+        .chapter-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .chapter-subtitle {
+            font-style: italic;
+            color: var(--color-text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* TYPOGRAPHY */
+        /* ═══════════════════════════════════════════════════════════ */
+        .chapter-content p {
+            margin-bottom: 1.5em;
+            text-align: justify;
+            hyphens: auto;
+        }
+
+        .chapter-content p:first-of-type::first-letter {
+            float: left;
+            font-size: 4rem;
+            line-height: 0.8;
+            padding-right: 12px;
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .chapter-content h2 {
+            font-size: 1.5rem;
+            margin: 2em 0 1em;
+            color: var(--color-accent);
+        }
+
+        .chapter-content blockquote {
+            border-left: 3px solid var(--color-accent);
+            padding-left: 20px;
+            margin: 2em 0;
+            font-style: italic;
+            color: var(--color-text-muted);
+        }
+
+        .chapter-content hr {
+            border: none;
+            text-align: center;
+            margin: 3em 0;
+        }
+
+        .chapter-content hr::before {
+            content: "• • •";
+            color: var(--color-accent);
+            letter-spacing: 1em;
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* CINEMATIC SPREAD (Image Left, Text Right) */
+        /* ═══════════════════════════════════════════════════════════ */
+        .spread {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 60px 0;
+            align-items: start;
+        }
+
+        .spread-image {
+            width: 100%;
+            border-radius: 4px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .spread-text {
+            font-size: 1rem;
+            line-height: 1.9;
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* CHARACTER GALLERY */
+        /* ═══════════════════════════════════════════════════════════ */
+        .character-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+
+        .character-card {
+            background: var(--color-surface);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .character-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+        }
+
+        .character-card img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+        }
+
+        .character-card-info {
+            padding: 16px;
+        }
+
+        .character-card-name {
+            font-family: var(--font-ui);
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .character-card-role {
+            font-size: 12px;
+            color: var(--color-text-muted);
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* NAVIGATION FOOTER */
+        /* ═══════════════════════════════════════════════════════════ */
+        .chapter-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .chapter-nav a {
+            font-family: var(--font-ui);
+            font-size: 14px;
+            color: var(--color-text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            background: var(--color-surface);
+            transition: all 0.2s ease;
+        }
+
+        .chapter-nav a:hover {
+            background: var(--color-surface-elevated);
+            color: var(--color-accent);
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* RESPONSIVE */
+        /* ═══════════════════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .spread {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .chapter {
+                padding: 40px 20px;
+            }
+
+            .chapter-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h1>{{BOOK_TITLE}}</h1>
+            <p>by {{AUTHOR_NAME}}</p>
+        </div>
+        <div class="toc">
+            <div class="toc-section">
+                <div class="toc-section-title">Front Matter</div>
+                <a href="#dramatis-personae"><span class="chapter-num">—</span>Dramatis Personae</a>
+            </div>
+            <div class="toc-section">
+                <div class="toc-section-title">Chapters</div>
+                {{TOC_ENTRIES}}
+                <!-- Example:
+                <a href="#chapter-1"><span class="chapter-num">01</span>La Selección</a>
+                <a href="#chapter-2"><span class="chapter-num">02</span>El Plan</a>
+                -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- DRAMATIS PERSONAE -->
+        <section class="chapter" id="dramatis-personae">
+            <div class="chapter-header">
+                <div class="chapter-number">Dramatis Personae</div>
+                <h1 class="chapter-title">The Cast</h1>
+            </div>
+            <div class="character-gallery">
+                {{CHARACTER_CARDS}}
+                <!-- Example:
+                <div class="character-card">
+                    <img src="images/el_profesor.png" alt="El Profesor">
+                    <div class="character-card-info">
+                        <div class="character-card-name">El Profesor</div>
+                        <div class="character-card-role">The Mastermind</div>
+                    </div>
+                </div>
+                -->
+            </div>
+        </section>
+
+        <!-- CHAPTERS -->
+        {{CHAPTER_CONTENT}}
+        <!-- Example:
+        <section class="chapter" id="chapter-1">
+            <div class="chapter-header">
+                <div class="chapter-number">Episode 1</div>
+                <h1 class="chapter-title">La Selección</h1>
+                <p class="chapter-subtitle">Theme: Desperation and Opportunity</p>
+            </div>
+            <div class="chapter-content">
+                <p>Content goes here...</p>
+            </div>
+            <nav class="chapter-nav">
+                <a href="#dramatis-personae">← Dramatis Personae</a>
+                <a href="#chapter-2">El Plan →</a>
+            </nav>
+        </section>
+        -->
+    </main>
+
+    <script>
+        // Highlight active TOC item on scroll
+        const chapters = document.querySelectorAll('.chapter');
+        const tocLinks = document.querySelectorAll('.toc a');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    tocLinks.forEach(link => link.classList.remove('active'));
+                    const activeLink = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
+                    if (activeLink) activeLink.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-50% 0px -50% 0px' });
+
+        chapters.forEach(chapter => observer.observe(chapter));
+    </script>
+</body>
+</html>
