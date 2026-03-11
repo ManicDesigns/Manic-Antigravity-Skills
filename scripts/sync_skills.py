@@ -130,16 +130,28 @@ def fix_skill_names():
                 print(f"Restoring name for {new}...")
                 path.write_text(content.replace(f"name: {old}", f"name: {new}"), encoding="utf-8")
 
+def check_missing_destinations(repo_name):
+    mappings = SYNC_MAP.get(repo_name, {})
+    for src_rel, dest_rel in mappings.items():
+        dest = SKILLS_ROOT / dest_rel
+        if not dest.exists():
+            return True
+    return False
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--push", action="store_true", help="Push changes to Manic Antigravity Skills repo")
+    parser.add_argument("--force", action="store_true", help="Force sync all skills even if no changes detected")
     args = parser.parse_args()
     
     changes_detected = False
     
     # 1. Update Externals
     for name, info in REPOS.items():
-        if sync_repo(name, info):
+        pulled_updates = sync_repo(name, info)
+        missing_dest = check_missing_destinations(name)
+        
+        if pulled_updates or missing_dest or args.force:
             update_local_skills(name, info["path"])
             changes_detected = True
             
