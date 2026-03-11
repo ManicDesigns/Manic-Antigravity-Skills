@@ -8,13 +8,15 @@ from pathlib import Path
 SKILLS_ROOT = Path(__file__).parent.parent.absolute()
 EXTERNAL_ROOT = SKILLS_ROOT / "external"
 REPOS = {
-    "anthropics-skills": EXTERNAL_ROOT / "anthropics-skills",
-    "obra-superpowers": EXTERNAL_ROOT / "obra-superpowers"
+    "anthropics-skills": {"path": EXTERNAL_ROOT / "anthropics-skills", "url": None},
+    "obra-superpowers": {"path": EXTERNAL_ROOT / "obra-superpowers", "url": None},
+    "awesome-agent-skills": {"path": EXTERNAL_ROOT / "awesome-agent-skills", "url": "https://github.com/VoltAgent/awesome-agent-skills.git"},
+    "expo-skills": {"path": EXTERNAL_ROOT / "expo-skills", "url": "https://github.com/expo/skills.git"},
+    "agent-scan": {"path": EXTERNAL_ROOT / "agent-scan", "url": "https://github.com/snyk/agent-scan.git"}
 }
 
 # Mapping of external skills to local names (Source Path relative to Repo Root -> Local Name)
 # If mapping is not here, it won't be auto-synced unless we add a generic rule.
-# For now, we only sync what we've explicitly ported or want to watch.
 SYNC_MAP = {
     "anthropics-skills": {
         "skills/xlsx": "managing-excel-files",
@@ -25,6 +27,17 @@ SYNC_MAP = {
     "obra-superpowers": {
         "skills/brainstorming": "brainstorming",
         "skills/writing-plans": "planning"
+    },
+    "awesome-agent-skills": {
+        "": "awesome-agent-skills"
+    },
+    "expo-skills": {
+        "plugins/expo-app-design": "expo-app-design",
+        "plugins/expo-deployment": "expo-deployment",
+        "plugins/upgrading-expo": "upgrading-expo"
+    },
+    "agent-scan": {
+        "": "agent-scan"
     }
 }
 
@@ -42,11 +55,19 @@ def run_git_cmd(cwd, args):
         print(f"Git command failed in {cwd}: git {' '.join(args)}\nError: {e.stderr}")
         return None
 
-def sync_repo(repo_name, repo_path):
+def sync_repo(repo_name, repo_info):
+    repo_path = repo_info["path"]
+    repo_url = repo_info["url"]
     print(f"--- Checking {repo_name} ---")
     if not repo_path.exists():
-        print(f"Repo not found at {repo_path}")
-        return False
+        if repo_url:
+            print(f"Cloning {repo_url} into {repo_path}...")
+            EXTERNAL_ROOT.mkdir(parents=True, exist_ok=True)
+            run_git_cmd(EXTERNAL_ROOT, ["clone", repo_url, repo_path.name])
+            return True
+        else:
+            print(f"Repo not found at {repo_path} and no URL provided.")
+            return False
     
     # 1. Pull changes
     print("Pulling latest changes...")
@@ -63,7 +84,7 @@ def update_local_skills(repo_name, repo_path):
     mappings = SYNC_MAP.get(repo_name, {})
     
     for src_rel, dest_rel in mappings.items():
-        src = repo_path / src_rel
+        src = repo_path / src_rel if src_rel else repo_path
         dest = SKILLS_ROOT / dest_rel
         
         if not src.exists():
@@ -75,14 +96,6 @@ def update_local_skills(repo_name, repo_path):
         # If directory, copy recursively
         if src.is_dir():
             if dest.exists():
-                # We carefully overwrite, maybe preserving SKILL.md header if we wanted to be fancy
-                # But for now, we'll just copy over. 
-                # NOTE: This might overwrite our custom SKILL.md names if source SKILL.md changed.
-                # In a real "Manic" repo, we might want a merge strategy.
-                # For this v1, strict overwrite is safer for "getting latest features"
-                # EXCEPT we renamed the skills in the SKILL.md frontmatter.
-                
-                # Strategy: Copy everything, then fix SKILL.md name if needed
                 for item in src.iterdir():
                     if item.name == ".git": continue
                     s = item
@@ -93,9 +106,11 @@ def update_local_skills(repo_name, repo_path):
                     else:
                         shutil.copy2(s, d)
             else:
-                shutil.copytree(src, dest)
+                # Copy everything but exclude .git
+                shutil.copytree(src, dest, ignore=shutil.ignore_patterns('.git', '.github'))
         else:
-            # Single file sync (unlikely for current mappings but good to support)
+            # Single file sync
+            dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, dest)
             
 def fix_skill_names():
@@ -123,9 +138,9 @@ def main():
     changes_detected = False
     
     # 1. Update Externals
-    for name, path in REPOS.items():
-        if sync_repo(name, path):
-            update_local_skills(name, path)
+    for name, info in REPOS.items():
+        if sync_repo(name, info):
+            update_local_skills(name, info["path"])
             changes_detected = True
             
     # 2. Fix Metadata
