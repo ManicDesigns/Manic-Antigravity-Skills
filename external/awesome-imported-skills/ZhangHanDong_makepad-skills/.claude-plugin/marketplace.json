@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "makepad-skills",
+  "version": "2.0.0",
+  "description": "Comprehensive Makepad UI framework assistant with auto-routing, widget patterns, shaders, animations, and production-ready Robius patterns from Robrix/Moly codebases. 20 skills covering basics, DSL, layout, widgets, events, animation, shaders, platform, font, splash, and Robius patterns.",
+  "owner": {
+    "name": "ZhangHanDong",
+    "email": "makepad-skills@example.com"
+  },
+  "plugins": [
+    {
+      "name": "makepad-skills",
+      "description": "20 skills for Makepad UI framework: basics, DSL, layout, widgets, events, animation, shaders, platform, font, splash, Robius patterns (app-architecture, widget-patterns, event-action, state-management, matrix-integration), MolyKit, deployment, reference, and evolution",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

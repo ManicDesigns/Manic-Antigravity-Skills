@@ -1,0 +1,396 @@
+# Release Notes / 版本发布历史
+
+---
+
+## v0.5.5 — 2026-03-05
+
+### Usage Mode Optimization / 使用模式优化
+
+- **Platform-aware calling priority / 按平台推荐调用模式**: Claude Code and Cursor users get MCP-first experience (structured tool calls, no interactive confirmation needed). Aider, Codex, Gemini CLI, and local models (Ollama) default to CLI mode for lower context overhead and universal compatibility.
+  Claude Code / Cursor 用户推荐 MCP 优先（结构化调用，无需交互确认）。Aider、Codex、Gemini CLI 及本地模型（Ollama）默认 CLI 模式，上下文开销更低，兼容性更强。
+
+- **Install order update / 安装顺序调整**: Skills.sh (`npx skills add`) is now the primary install method; ClawHub as secondary option.
+  Skills.sh 安装方式提升为首选；ClawHub 作为备选。
+
+- **MCP load tip / MCP 加载提示**: Added tip for MCP-native tools to check MCP server status (`/mcp`) before use.
+  新增 MCP 原生工具的加载状态检查提示。
+
+**Files updated / 变更文件**: `skills/vmware-aiops/SKILL.md`, `plugins/.../SKILL.md`, `README.md`, `README-CN.md`
+
+---
+
+## v0.5.4 — 2026-03-03
+
+### Security Hardening: Prompt Injection Protection / 安全加固：Prompt 注入防护
+
+- **Boundary markers / 边界标记**: All vSphere-sourced content (event messages, host logs) is now wrapped in explicit boundary markers (`[VSPHERE_EVENT]...[/VSPHERE_EVENT]`, `[VSPHERE_HOST_LOG]...[/VSPHERE_HOST_LOG]`) so downstream LLM agents can distinguish trusted output from untrusted vSphere data.
+  所有 vSphere 来源内容（事件消息、主机日志）现在用显式边界标记包裹，使下游 LLM Agent 能区分可信输出和不可信的 vSphere 数据。
+
+- **Comprehensive control character sanitization / 全面控制字符清理**: Replaced simple null-byte removal with regex-based stripping of all C0/C1 control characters (except `\n` and `\t`). Prevents prompt injection via embedded control sequences.
+  用正则替换原来的简单空字节移除，清理所有 C0/C1 控制字符（保留换行和制表符），防止通过嵌入控制序列进行 Prompt 注入。
+
+- **MCP server documentation / MCP 服务文档**: Added comprehensive module docstring to `mcp_server/server.py` with security considerations (credential handling, transport security, Read vs Write tool classification) to resolve Socket "Obfuscated File" audit flag.
+  为 `mcp_server/server.py` 添加完整模块文档和安全说明，解决 Socket 审计的 "Obfuscated File" 标记。
+
+- **Security section in SKILL.md / SKILL.md 安全段落**: Added explicit Security section covering TLS verification, credential handling, webhook data scope, prompt injection protection, and code review guidance.
+  SKILL.md 新增安全段落，涵盖 TLS 验证、凭据处理、Webhook 数据范围、Prompt 注入防护和代码审查建议。
+
+- **README security context / README 安全上下文**: Updated Safety Features table and Security Best Practices in both English and Chinese READMEs. Removed internal API reference (`ConnectionManager.from_config()`).
+  更新中英文 README 的安全特性表格和安全最佳实践，移除内部 API 引用。
+
+**Files updated / 变更文件**: `vmware_aiops/scanner/log_scanner.py`, `mcp_server/server.py`, `skills/vmware-aiops/SKILL.md`, `plugins/.../SKILL.md`, `README.md`, `README-CN.md`
+
+---
+
+## v0.5.3 — 2026-02-28
+
+### Dry-Run Mode / 预演模式
+
+- **`--dry-run` for all destructive commands / 所有破坏性命令支持 `--dry-run`**: Add `--dry-run` to any destructive command to preview the exact API call, target, parameters, and current VM state — without executing. Covers: `power-on`, `power-off`, `create`, `delete`, `reconfigure`, `snapshot-create`, `snapshot-revert`, `snapshot-delete`, `clone`, `migrate`.
+  所有破坏性命令支持 `--dry-run` 参数，预览将要执行的 API 调用、目标、参数和当前 VM 状态，但不实际执行。
+
+  ```bash
+  vmware-aiops vm power-off my-vm --dry-run
+  # [DRY-RUN] API Call: vim.VirtualMachine.ShutdownGuest()
+  # [DRY-RUN] Current: {'power_state': 'poweredOn'}
+  # [DRY-RUN] Expected: {'power_state': 'poweredOff'}
+  # [DRY-RUN] Run without --dry-run to execute.
+  ```
+
+- **Dry-run audit logging / 预演审计记录**: Dry-run invocations are logged to audit trail with `result: "dry-run"` for compliance tracking.
+  预演操作同样记录到审计日志，`result` 为 `"dry-run"`。
+
+### Other / 其他
+
+- **FQDN recommended / 推荐使用 FQDN**: Config examples updated to prefer FQDN over bare IP addresses. Required for Kerberos authentication; IP still accepted.
+  配置示例改为推荐 FQDN，Kerberos 认证需要 FQDN；IP 地址仍然支持。
+
+- **Cross-repo documentation / 跨仓库文档**: Added [VMware-Monitor](https://github.com/zw008/VMware-Monitor) cross-references to all skill files and README.
+  所有 skill 文件和 README 添加了独立 VMware-Monitor 仓库交叉引用。
+
+---
+
+## v0.5.2 — 2026-02-28
+
+### Security Hardening / 安全加固
+
+- **Remove --confirm bypass flag / 移除 --confirm 绕过参数**: The `vm delete --confirm` flag that allowed skipping double confirmation has been removed. All destructive operations now require mandatory double confirmation with no bypass mechanism.
+  移除了 `vm delete` 的 `--confirm` 跳过确认参数。所有破坏性操作强制双重确认，无法绕过。
+
+- **Double confirmation for all destructive ops / 所有破坏性操作双重确认**: Extended double confirmation to `snapshot-revert`, `snapshot-delete`, `clone`, and `migrate` (previously only `power-off`, `delete`, `reconfigure` were protected).
+  将双重确认扩展到快照恢复、快照删除、克隆、迁移操作（之前仅关机、删除、配置变更受保护）。
+
+- **Rejected confirmation audit logging / 拒绝操作审计记录**: When a user declines a confirmation prompt, the rejection is now logged to the audit trail with `result: "rejected"`.
+  用户拒绝确认时，拒绝操作也会被记录到审计日志中。
+
+- **Input validation / 输入参数校验**: VM name (1-80 chars, no leading `-`/`.`), CPU (1-128), memory (128-1048576 MB), disk (1-65536 GB) are now validated before execution.
+  VM 名称（1-80 字符，不以 `-`/`.` 开头）、CPU（1-128）、内存（128-1048576 MB）、磁盘（1-65536 GB）参数校验。
+
+- **`.env` file permission check / `.env` 文件权限检查**: At startup, warns if `~/.vmware-aiops/.env` has permissions wider than `600` (owner-only).
+  启动时检查 `.env` 文件权限，如果非 owner-only（600）则发出警告。
+
+### Files Updated / 更新文件
+
+- `vmware_aiops/cli.py` — Removed --confirm bypass, added double confirm + state preview to 4 more operations, added input validation, rejection audit logging
+- `vmware_aiops/config.py` — Added `.env` permission check at startup
+- All SKILL.md / AGENTS.md / README files — Updated Safety Features/Rules with new security measures
+
+---
+
+## v0.5.1 — 2026-02-28
+
+### New Features / 新功能
+
+- **Plan → Confirm → Execute → Log workflow / 计划→确认→执行→日志工作流**: All state-modifying operations now follow a structured 4-step workflow. Before executing destructive actions, the CLI shows the current VM state (power, CPU, memory, snapshots), presents a before/after change summary, asks for confirmation, then logs the operation with full audit trail.
+  所有修改状态的操作现在遵循结构化的 4 步工作流。执行修改操作前，CLI 展示当前 VM 状态（电源、CPU、内存、快照），呈现变更前后对比，请求确认，然后记录完整审计日志。
+
+- **Audit logging / 操作审计日志**: New `AuditLogger` class (`vmware_aiops/notify/audit.py`) writes all operations to `~/.vmware-aiops/audit.log` in JSONL format. Each entry includes: timestamp, target, operation, resource, parameters, before_state, after_state, result, user, and skill (aiops/monitor). Follows the same append-only JSONL pattern as the existing `ScanLogger`.
+  新增 `AuditLogger` 类，将所有操作写入 `~/.vmware-aiops/audit.log`（JSONL 格式）。每条记录包含：时间戳、目标、操作类型、资源名、参数、操作前状态、操作后状态、结果、用户、技能类型。
+
+- **State preview before destructive operations / 修改操作前状态预览**: Power-off, delete, and reconfigure commands now query and display the current VM state (power state, CPU, memory, snapshot count, host, IP) before asking for confirmation.
+  关机、删除、调整配置命令现在在请求确认前查询并展示当前 VM 状态。
+
+- **Query audit trail for vmware-monitor / vmware-monitor 查询审计**: The read-only monitoring skill also supports audit logging for compliance — all queries can be recorded with operation type "query".
+  只读监控技能也支持审计日志记录，用于合规要求——所有查询操作可记录为 "query" 类型。
+
+### Files Added / 新增文件
+
+- `vmware_aiops/notify/audit.py` — AuditLogger class (JSONL format, append-only)
+
+### Files Updated / 更新文件
+
+- `vmware_aiops/cli.py` — Added state preview, audit logging for all VM operations
+- `plugins/vmware-ops/skills/vmware-aiops/SKILL.md` — Added "Execution Workflow" section
+- `plugins/vmware-ops/skills/vmware-monitor/SKILL.md` — Added "Query Audit Trail" section
+- `skill/SKILL.md` — Synced Execution Workflow
+- `SKILL.md` (root) — Added Audit Trail to Safety Features table
+- `skills/vmware-aiops/SKILL.md` — Synced Safety Features
+- `vmware-aiops/SKILL.md` — Synced Safety Features
+- `codex-skill/AGENTS.md` — Added Execution Workflow
+- `.agents/skills/vmware-aiops/AGENTS.md` — Added Execution Workflow
+- `.agents/skills/vmware-monitor/AGENTS.md` — Added Query Audit Trail
+- `README.md` — Added Audit Trail to Safety Features table
+- `README-CN.md` — Same updates in Chinese
+- `RELEASE_NOTES.md` — Added v0.5.1 release notes
+
+---
+
+## v0.5.0 — 2026-02-28
+
+### New Features / 新功能
+
+- **vmware-monitor skill (read-only) / vmware-monitor 只读监控技能**: Added a new read-only monitoring skill `vmware-monitor` that provides all query and monitoring capabilities without any destructive operations. Safe for daily monitoring — no risk of accidental VM power-off, deletion, or reconfiguration.
+  新增只读监控技能 `vmware-monitor`，提供所有查询和监控功能，不包含任何修改操作。日常巡检使用更安全——不会误操作关机、删除或修改 VM。
+
+- **Two-skill architecture / 双技能架构**: The plugin now offers two independent skills:
+  插件现在提供两个独立技能：
+  - `vmware-monitor` — Read-only: inventory, health, alarms, events, VM info, snapshot list, vSAN monitoring, Aria Operations metrics, VKS status, scanning / 只读：资源清单、健康检查、告警、事件、VM 信息、快照列表、vSAN 监控、Aria Operations 指标、VKS 状态、日志扫描
+  - `vmware-aiops` — Full operations: everything in monitor + power, create, delete, reconfigure, snapshot CRUD, clone, migrate, VKS scaling / 完整运维：监控全部功能 + 开关机、创建/删除、修改配置、快照增删恢复、克隆、迁移、VKS 扩缩容
+
+- **Safety redirect / 安全引导**: When users request destructive operations in vmware-monitor, the skill guides them to switch to vmware-aiops instead of silently failing.
+  当用户在 vmware-monitor 中请求修改操作时，技能会引导切换到 vmware-aiops，而非静默失败。
+
+- **GitHub community files / GitHub 社区文件**: Added SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, LICENSE, issue templates (bug report, feature request), PR template, and Dependabot configuration.
+  新增安全策略、贡献指南、行为准则、MIT 许可证、Issue 模板、PR 模板、Dependabot 配置。
+
+### How to Switch Between Skills / 如何切换技能
+
+```bash
+# Read-only monitoring (safe) / 只读监控（安全）
+/vmware-ops:vmware-monitor
+
+# Full operations / 完整运维
+/vmware-ops:vmware-aiops
+```
+
+### Files Added / 新增文件
+
+- `plugins/vmware-ops/skills/vmware-monitor/SKILL.md` — Read-only monitoring skill
+- `skills/vmware-monitor/SKILL.md` — Skills.sh index for vmware-monitor
+- `vmware-monitor/SKILL.md` — Alternative index for vmware-monitor
+- `.agents/skills/vmware-monitor/SKILL.md` — Agent skill header
+- `.agents/skills/vmware-monitor/AGENTS.md` — Agent instructions (read-only)
+- `SECURITY.md` — Security policy and vulnerability reporting
+- `CONTRIBUTING.md` — Contribution guidelines
+- `CODE_OF_CONDUCT.md` — Contributor Covenant v2.0
+- `LICENSE` — MIT License
+- `.github/ISSUE_TEMPLATE/bug_report.yml` — Bug report template
+- `.github/ISSUE_TEMPLATE/feature_request.yml` — Feature request template
+- `.github/ISSUE_TEMPLATE/config.yml` — Issue template config
+- `.github/PULL_REQUEST_TEMPLATE.md` — PR template
+- `.github/dependabot.yml` — Dependabot configuration
+
+### Files Updated / 更新文件
+
+- `README.md` — Added two-skill comparison table, updated install instructions and project structure
+- `README-CN.md` — Same updates in Chinese
+- `RELEASE_NOTES.md` — Added v0.5.0 release notes
+- `.claude-plugin/marketplace.json` — Updated description to mention both skills, version 0.5.0
+- `plugins/vmware-ops/.claude-plugin/plugin.json` — Updated description, version 0.5.0
+
+---
+
+## v0.4.1 — 2026-02-26
+
+### Improvements / 改进
+
+- **Secure credential management / 安全凭据管理**: Added `.env.example` template with naming convention (`VMWARE_{TARGET_NAME}_PASSWORD`) and `chmod 600` instructions. Users can now `cp .env.example ~/.vmware-aiops/.env` for quick setup.
+  新增 `.env.example` 凭据模板，包含命名规则和 `chmod 600` 说明，用户可快速复制使用。
+
+- **First-run configuration guide / 首次配置引导**: SKILL.md now includes a 3-step setup guide (check config.yaml → check .env → verify connection) for new users.
+  SKILL.md 新增 3 步配置引导流程，帮助新用户快速上手。
+
+- **Credential security rules / 凭据安全规则**: Added explicit NEVER/ALWAYS rules to SKILL.md — never hardcode passwords, never display passwords in output, always use `ConnectionManager.from_config()`.
+  SKILL.md 新增明确的安全规则——禁止硬编码密码、禁止在输出中显示密码、始终使用 `ConnectionManager.from_config()`。
+
+- **Output sanitization / 输出脱敏**: Connection info displays only host, username, and type — passwords are never shown in any output or logs.
+  连接信息仅显示主机、用户名和类型，密码永远不会出现在任何输出或日志中。
+
+- **Security best practices in README / README 安全最佳实践**: Added security best practices section to both English and Chinese READMEs.
+  中英文 README 均新增安全最佳实践章节。
+
+### Files Added / 新增文件
+
+- `.env.example` — Credential template with naming convention and security instructions
+
+### Files Updated / 更新文件
+
+- `config.example.yaml` — Added `.env` setup guidance comments
+- `skill/SKILL.md` — Rewritten with first-run guide, credential security rules, output sanitization
+- `plugins/vmware-ops/skills/vmware-aiops/SKILL.md` — Synced with `skill/SKILL.md`
+- `README.md` — Updated password setup to use `.env.example`, added security best practices
+- `README-CN.md` — Same updates in Chinese
+
+---
+
+## v0.4.0 — 2026-02-26
+
+### New Features / 新功能
+
+- **vSAN Management / vSAN 管理**: Added vSAN health check, capacity monitoring, disk group listing, and performance metrics via pyVmomi 8u3+ integrated vSAN SDK.
+  新增 vSAN 健康检查、容量监控、磁盘组列表、性能指标（通过 pyVmomi 8u3+ 内置 vSAN SDK）。
+
+- **Aria Operations / VCF Operations 集成**: Added REST API integration for `/suite-api/` — historical metrics, ML anomaly detection, capacity planning, right-sizing recommendations, intelligent alerts with root cause analysis.
+  新增 Aria Operations REST API 集成——历史指标、ML 异常检测、容量规划、右规格建议、根因分析智能告警。
+
+- **vSphere Kubernetes Service (VKS) / Kubernetes 服务**: Added Tanzu Kubernetes cluster management — list clusters, health checks (InfrastructureReady/ControlPlaneAvailable/WorkersAvailable), scale workers, node status.
+  新增 Tanzu Kubernetes 集群管理——列出集群、健康检查、扩缩容、节点状态。
+
+### New CLI Commands / 新增命令
+
+```bash
+# vSAN
+vmware-aiops vsan health|capacity|disks|performance [--target <name>]
+
+# Aria Operations / VCF Operations
+vmware-aiops ops alerts|metrics|recommendations|capacity [--target <name>]
+
+# VKS
+vmware-aiops vks clusters|health|scale|nodes
+```
+
+- **MCP Server / MCP 服务器**: Added `mcp_server/` package wrapping VMware operations as MCP tools (list VMs/hosts/datastores/clusters, alarms, events, VM power on/off, VM info). Enables registration on Smithery, Glama, and MCP Server Registry.
+  新增 MCP 服务器，将 VMware 操作封装为 MCP 工具，支持注册到 Smithery、Glama 和 MCP Server Registry。
+
+- **Smithery Integration / Smithery 集成**: Added `smithery.yaml` for one-click install via `npx @smithery/cli install`.
+  新增 Smithery 配置文件，支持一键安装。
+
+- **Marketplace Publishing / 市场发布**: Prepared for PyPI (`pip install vmware-aiops`), SkillsMP (skills.sh), Smithery, Glama, and MCP Server Registry.
+  准备发布到 PyPI、SkillsMP、Smithery、Glama 和 MCP Server Registry。
+
+### Files Updated / 更新文件
+
+- All skill files updated with vSAN, Aria Operations, and VKS sections:
+  `skill/SKILL.md`, `codex-skill/AGENTS.md`, `gemini-extension/GEMINI.md`,
+  `trae-rules/project_rules.md`, `kimi-skill/SKILL.md`,
+  `plugins/vmware-ops/skills/vmware-aiops/SKILL.md`
+- `README.md` — Added capabilities sections 6-8 (vSAN, Aria Ops, VKS) and CLI commands
+- `README-CN.md` — Same updates in Chinese
+- `plugins/vmware-ops/.claude-plugin/plugin.json` — Version 0.3.0 → 0.4.0
+- `.claude-plugin/marketplace.json` — Version 0.2.0 → 0.4.0
+- `pyproject.toml` — Version 0.1.0 → 0.4.0, added `mcp[cli]` dependency and `vmware-aiops-mcp` entry point
+- `README.md` / `README-CN.md` — Added MCP server section, updated platform table and project structure
+
+### Files Added / 新增文件
+
+- `mcp_server/__init__.py`
+- `mcp_server/server.py` — FastMCP server exposing 9 VMware tools
+- `mcp_server/__main__.py` — `python -m mcp_server` entry point
+- `smithery.yaml` — Smithery marketplace configuration
+
+### API References / API 参考
+
+- vSAN Management SDK: https://developer.broadcom.com/sdks/vsan-management-sdk-for-python/latest/
+- Aria Operations API: https://developer.broadcom.com/xapis/vmware-aria-operations-api/latest/
+- VKS API: https://developer.broadcom.com/xapis/vmware-vsphere-kubernetes-service/3.6.0/api-docs.html
+- VCF 9.0 API Spec: https://developer.broadcom.com/sdks/vcf-api-specification/latest/
+
+---
+
+## v0.3.0 — 2026-02-26
+
+### New Features / 新功能
+
+- **Trae IDE support / Trae IDE 支持**: Added `trae-rules/project_rules.md` for Trae IDE's Builder Mode. Copy to `.trae/rules/` to use with Claude, DeepSeek, GPT-4o, or Doubao models.
+  添加 Trae IDE 规则文件，复制到 `.trae/rules/` 即可使用 Claude、DeepSeek、GPT-4o 或豆包模型。
+
+- **Kimi Code CLI support / Kimi Code CLI 支持**: Added `kimi-skill/SKILL.md` for Moonshot Kimi Code CLI. Copy to `~/.kimi/skills/vmware-aiops/`.
+  添加 Kimi Code CLI 技能文件，复制到 `~/.kimi/skills/vmware-aiops/`。
+
+- **Version compatibility matrix / 版本兼容矩阵**: Documented support for vSphere 6.5, 6.7, 7.0, and 8.0 across all skill files and README. pyVmomi auto-negotiates API version during SOAP handshake.
+  记录了 vSphere 6.5–8.0 版本兼容性。pyVmomi 在 SOAP 握手阶段自动协商 API 版本。
+
+- **Bilingual README / 中英文 README**: Split into `README.md` (English) and `README-CN.md` (Chinese) with language switcher.
+  拆分为英文 README.md 和中文 README-CN.md，带语言切换链接。
+
+### Changes / 变更
+
+- Updated architecture diagram to include Trae IDE and Kimi Code CLI.
+  更新架构图，加入 Trae IDE 和 Kimi Code CLI。
+
+- Added version-specific notes to all skill/rules files:
+  - vSphere 8.0: `CreateSnapshot_Task` deprecated → use `CreateSnapshotEx_Task`
+  - vSphere 8.0: `SmartConnectNoSSL()` removed → use `SmartConnect(disableSslCertValidation=True)`
+  - vSphere 7.0: All standard APIs fully supported
+
+  为所有技能/规则文件添加版本特定说明。
+
+- Plugin version bumped to 0.3.0.
+  插件版本升级到 0.3.0。
+
+### Files Added / 新增文件
+
+- `trae-rules/project_rules.md`
+- `kimi-skill/SKILL.md`
+- `README-CN.md`
+- `RELEASE_NOTES.md`
+
+### Files Updated / 更新文件
+
+- `README.md` — English-only, added Trae/Kimi platforms, version compatibility, updated project structure
+- `skill/SKILL.md` — Added version compatibility section
+- `codex-skill/AGENTS.md` — Added version compatibility section
+- `gemini-extension/GEMINI.md` — Added version compatibility section
+- `plugins/vmware-ops/.claude-plugin/plugin.json` — Version 0.2.0 → 0.3.0
+
+---
+
+## v0.2.0 — 2026-02-25
+
+### New Features / 新功能
+
+- **Claude Code Marketplace plugin / Claude Code 市场插件**: Added `.claude-plugin/marketplace.json` and `plugins/vmware-ops/` for one-click install via `/plugin marketplace add zw008/VMware-AIops`.
+  新增 Claude Code 市场插件，支持一键安装。
+
+- **Gemini CLI extension / Gemini CLI 扩展**: Added `gemini-extension/` with `GEMINI.md` and `gemini-extension.json` for Google Gemini CLI integration.
+  新增 Gemini CLI 扩展。
+
+- **Multi-platform support / 多平台支持**: Claude Code, Gemini CLI, OpenAI Codex CLI, Aider, Continue CLI all supported via shared Python backend.
+  支持 Claude Code、Gemini CLI、OpenAI Codex CLI、Aider、Continue CLI。
+
+- **Chinese cloud models / 国内云端模型**: Documentation for DeepSeek, Qwen (Alibaba), and Doubao (ByteDance).
+  新增 DeepSeek、通义千问、豆包的配置文档。
+
+- **Local models / 本地模型**: Aider + Ollama workflow for fully offline operation.
+  新增 Aider + Ollama 离线运行方案。
+
+### Core Features / 核心功能
+
+- **Inventory**: List VMs, hosts, datastores, clusters, networks (vCenter + ESXi)
+  资源清单：虚拟机、主机、数据存储、集群、网络
+
+- **Health monitoring**: Active alarms, event/log queries (50+ event types), hardware sensors, host services
+  健康监控：活跃告警、事件日志查询、硬件传感器、主机服务
+
+- **VM lifecycle**: Power on/off/reset/suspend, create, delete, reconfigure (CPU/memory), snapshots (create/list/revert/delete), clone, vMotion migration
+  VM 生命周期：开关机、创建、删除、调整配置、快照、克隆、迁移
+
+- **Scheduled scanning**: APScheduler daemon, multi-target scan, regex log analysis, JSONL output, webhook notifications (Slack/Discord)
+  定时扫描：APScheduler 守护进程、多目标扫描、正则日志分析、JSONL 输出、Webhook 通知
+
+- **Safety**: Double confirmation for destructive ops, `.env` password protection, SSL self-signed cert support, async task waiting
+  安全特性：双重确认、密码保护、自签名证书支持、异步任务等待
+
+---
+
+## v0.1.0 — 2026-02-24
+
+### Initial Release / 初始发布
+
+- Core Python backend (`vmware_aiops/`) with pyVmomi SOAP API integration.
+  核心 Python 后端，集成 pyVmomi SOAP API。
+
+- CLI tool (`vmware-aiops`) with Typer framework.
+  基于 Typer 框架的 CLI 工具。
+
+- Claude Code skill file (`skill/SKILL.md`).
+  Claude Code 技能文件。
+
+- OpenAI Codex CLI / Aider / Continue shared instructions (`codex-skill/AGENTS.md`).
+  OpenAI Codex CLI / Aider / Continue 共用指令文件。
+
+- Multi-target configuration via `~/.vmware-aiops/config.yaml`.
+  多目标配置。
+
+- Environment variable password management.
+  环境变量密码管理。
