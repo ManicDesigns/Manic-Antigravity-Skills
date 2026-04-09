@@ -20,6 +20,9 @@
 - **Disable Location**: `POST /sell/inventory/v1/location/{merchantLocationKey}/disable`
 - **Delete Location**: `DELETE /sell/inventory/v1/location/{merchantLocationKey}`
 
+### Inventory Mapping API (GraphQL)
+- **Inventory Mapping API Endpoint**: `POST /sell/inventory_mapping` (via GraphQL endpoint) *Used to get AI-powered recommendations.*
+
 ### Account API
 
 #### Business Policies
@@ -85,6 +88,17 @@
 - **Get Category Suggestions**: `GET /commerce/taxonomy/v1/category_tree/{category_tree_id}/get_category_suggestions`
 - **Get Item Aspects**: `GET /commerce/taxonomy/v1/category_tree/{category_tree_id}/get_item_aspects_for_category`
 - **Fetch All Aspects**: `GET /commerce/taxonomy/v1/category_tree/{category_tree_id}/fetch_item_aspects`
+
+### Catalog API
+- **Get Product**: `GET /sell/catalog/v1/product/{epid}`
+- **Search Catalog**: `GET /sell/catalog/v1/product_summary/search`
+
+### Negotiation API
+- **Find Eligible Items**: `GET /sell/negotiation/v1/find_eligible_items`
+- **Send Offer**: `POST /sell/negotiation/v1/send_offer_to_interested_buyers`
+
+### Identity API
+- **Get User**: `GET /sell/identity/v1/user`
 
 ---
 

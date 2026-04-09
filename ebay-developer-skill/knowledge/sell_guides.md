@@ -1,6 +1,6 @@
 # Guides
 
-Source: https://developer.ebay.com/develop/guides-v2/communications/sell-communications-guide
+Source: https://developer.ebay.com/develop/guides-v2/sell-communications-guide
 
 * Sell
 * Buy
@@ -44,6 +44,8 @@ Digital Signatures for APIs
 Marketplace User Account Deletion
 
 ### Sell Communications Guide
+
+Copy Markdown [View as Markdown](/develop/guides-v2/sell-communications-guide.md)
 
 #### Overview
 
@@ -192,8 +194,8 @@ Alternatively, the [getConversations](/api-docs/commerce/message/resources/conve
 
 * [conversationStatus](/api-docs/commerce/message/resources/conversation/methods/getConversations#uri.conversation_status)**:** The status of the conversations being retrieved. Only conversations in the specified status will be retrieved. The following values are supported: 
   + `ACTIVE`: The conversation is currently active and has not been archived or deleted.
-  + `ARCHIVE`: The conversation has been archived, and can still be referenced or moved back to active status if needed.
-  + `DELETE`:  The conversation has been deleted and can no longer be accessed.
+  + `ARCHIVED`: The conversation has been archived, and can still be referenced or moved back to active status if needed.
+  + `DELETED`:  The conversation has been deleted and can no longer be accessed.
   + `READ`: The most recent message in the conversation has been read by the recipient.
   + `UNREAD`: The most recent message in the conversation has not yet been read by the recipient.
 * [conversation\_type](/api-docs/commerce/message/resources/conversation/methods/getConversations#uri.conversation_type)**:** The type of conversations being retrieved. Only conversations of the specified type will be returned. The following values are supported: 

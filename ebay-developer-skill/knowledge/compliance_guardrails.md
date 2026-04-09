@@ -14,8 +14,11 @@ eBay imposes strict rate limits to ensure stability.
 
 ## 3. Data Protection
 - **PII (Personally Identifiable Information)**: Handle with extreme care. Encrypt at rest.
-- **GDPR/CCPA**: Your application must support data deletion requests.
+- **Marketplace User Account Deletion (GDPR/CCPA)**: Your application MUST subscribe to eBay's Marketplace Account Deletion webhooks. If an eBay user requests data deletion, eBay will fire a notification to your configured endpoint. You are contractually obligated to wipe their associated PII from your local databases immediately.
 - **Token Security**: Never expose Client Secrets or User Access Tokens in client-side code (browser). Use a backend proxy.
 
 ## 4. Restricted Categories
 Some APIs (e.g., Feed API, Large Merchant Services) require special approval or "Compatibility Checks".
+
+## 5. Digital Signatures for APIs
+Several high-risk HTTP headers and APIs (particularly Finance APIs, fulfillment, and certain identity resolution paths) require full Digital Signatures to guarantee payload integrity. Agents constructing requests for these endpoints must compute and append the `Signature` and `Signature-Input` HTTP headers using strict cryptographic standards outlined by eBay.

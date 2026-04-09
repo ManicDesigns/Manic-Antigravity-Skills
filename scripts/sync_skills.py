@@ -12,7 +12,8 @@ REPOS = {
     "obra-superpowers": {"path": EXTERNAL_ROOT / "obra-superpowers", "url": None},
     "awesome-agent-skills": {"path": EXTERNAL_ROOT / "awesome-agent-skills", "url": "https://github.com/VoltAgent/awesome-agent-skills.git"},
     "expo-skills": {"path": EXTERNAL_ROOT / "expo-skills", "url": "https://github.com/expo/skills.git"},
-    "agent-scan": {"path": EXTERNAL_ROOT / "agent-scan", "url": "https://github.com/snyk/agent-scan.git"}
+    "agent-scan": {"path": EXTERNAL_ROOT / "agent-scan", "url": "https://github.com/snyk/agent-scan.git"},
+    "vibe-security-skill": {"path": EXTERNAL_ROOT / "vibe-security-skill", "url": "https://github.com/raroque/vibe-security-skill.git"}
 }
 
 # Mapping of external skills to local names (Source Path relative to Repo Root -> Local Name)
@@ -38,6 +39,9 @@ SYNC_MAP = {
     },
     "agent-scan": {
         "": "agent-scan"
+    },
+    "vibe-security-skill": {
+        "vibe-security": "vibe-security"
     }
 }
 

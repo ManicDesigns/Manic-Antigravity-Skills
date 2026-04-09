@@ -12,6 +12,7 @@ The following skills are ready for deployment:
 - **antigravity-skill-creator**: Standards for creating new skills.
 - **brainstorming**: Collaborative design and ideation (from `obra/superpowers`).
 - **planning**: Detailed implementation planning (from `obra/superpowers`).
+- **vibe-security**: Security and vulnerability checks for vibe-coded apps.
 - *...and more.*
 
 ## Usage
